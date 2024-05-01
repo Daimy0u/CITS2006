@@ -59,7 +59,7 @@ class Cipher:
         @staticmethod
         def encrypt_RSA(message, public_key):
             e, n = public_key   
-            encrypted = [pow(byte, e, n) % 256 for byte in message]
+            encrypted = [pow(ord(byte), e, n) for byte in message]
             return encrypted
 
         @staticmethod
