@@ -1,0 +1,2 @@
+pyinotify==0.9.6
+yara-python==4.5.0
