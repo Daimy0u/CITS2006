@@ -4,5 +4,5 @@ Cipher:
 1/5/2024
 - Added XOR encryption
 
-5/5/2024
+5/5/2024\n
 -Added RSA encryption
