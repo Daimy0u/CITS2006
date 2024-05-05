@@ -89,11 +89,3 @@ class File:
             os.remove(os.path.join(directory, '.key.txt')) #removing hidden key file
 
             
-
-def main():
-
-    File.RSA.Encrypt()
-    #File.RSA.Decrypt()
-
-if __name__ == "__main__":
-    main()
