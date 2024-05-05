@@ -66,9 +66,12 @@ class File:
         def Decrypt():
             directory = os.getcwd()
 
-            with open(os.path.join(directory, '.key.txt'), 'r') as key_file:
-                keys = key_file.readlines()
-                private_key = eval(keys[1])
+            try:
+                with open(os.path.join(directory, '.key.txt'), 'r') as key_file:
+                    keys = key_file.readlines()
+                    private_key = eval(keys[1])
+            except FileNotFoundError: #Error handling if RSA.Encrypt is not run before Decrypting
+                 print("Error: The .key.txt file does not exists\nDid you run File.RSA.Encrypt()")
 
 
             for root, _, files in os.walk('/home'):
