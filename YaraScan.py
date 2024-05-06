@@ -1,6 +1,7 @@
 import yara
 DEFAULT_DIRECTORY = '/home/'
-
+FILE_DIRECTORY = '/Security'
+    
 
 class Rule:
     def __init__(self, ruleFilePath):
@@ -19,11 +20,29 @@ class Rule:
         return result
     
 class RuleSet(Rule):
-    def __init__(self, ruleFilePath):
-        super().__init__(yara.compile(ruleFilePath))
 
     def addRule(self, ruleFilePath):
         self.rules.append(yara.compile(ruleFilePath))
         
 
-        
+class DefaultImplementation:
+    rule = FILE_DIRECTORY + '/Rules.yar'
+    hashCheck = False
+
+    @classmethod
+    def __init__(cls,rule:str,ruleHashComparison:str):
+        ##TODO: Compare Rule Hash with Fixed Known Hash - TO BE IMPLEMENTED
+        #cls.hash = hash of rule
+        cls.hashCheck = True
+        return
+    
+    @classmethod
+    def scanAll(cls):
+        if cls.hashCheck is False:
+            raise ValueError(f"Failed rule hash check!")
+        #TODO
+        pass
+
+    @classmethod
+    def scanFile(cls, filePath:str):
+        pass
