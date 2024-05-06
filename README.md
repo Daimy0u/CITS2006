@@ -12,6 +12,7 @@ main ->
 - Launch Periodic File Scan Async
 - Runs MTD
 - Output Security Recommendations
+
 login ->
 - Asks user for key in form of password (auth pass+salt compare with hash, use stored keypair separate from user pass)
 - Decrypts Files, keep track of "user logon"
