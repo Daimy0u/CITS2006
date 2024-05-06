@@ -1,10 +1,10 @@
 # CITS2006
 
 ## Planned Structure of Dependencies
-Yara -> Rules.yar + Hash
-Cipher -> None
-File(Hash and Cipher) -> Cipher + Hash
-MTD -> Yara + File
+- Yara -> Rules.yar + Hash
+- Cipher -> None
+- File(Hash and Cipher) -> Cipher + Hash
+- MTD -> Yara + File
 
 ## Flow
 main ->  
