@@ -59,7 +59,7 @@ class FileEncryptorMTD:
             File.Base64.Decrypt(file_path)
             print("Decrypted file content:")
             subprocess.run(["cat", file_path])
-
+"""""
 def main():
     file_path = "hello.txt"
 
@@ -77,3 +77,4 @@ def main():
 if __name__ == "__main__":
     main()
 
+"""
