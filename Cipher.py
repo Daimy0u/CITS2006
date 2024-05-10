@@ -155,6 +155,83 @@ class Cipher:
             decrypted = ''.join([chr(pow(char, d, n)) for char in encrypted])
             return decrypted
         
+    class Swap:
+        @staticmethod
+        def swap_encrypt(plaintext, public_key):
+            """
+            Encrypts plaintext by first swapping characters in a specific pattern
+            and then using RSA encryption on the resulting text.
+
+            Args:
+                plaintext (str): The text to be encrypted.
+                public_key (tuple): The public key for RSA encryption.
+
+            Returns:
+                list: The RSA encrypted message of the swapped text.
+            """
+            # Perform swapping (can adjust the swapping logic as needed)
+            # Convert the plaintext to a list to allow modification
+            chars = list(plaintext)
+            n = len(chars)
+            encrypted_chars = [''] * n
+
+            # Rearrange characters: first, last, second, second last, etc.
+            left = 0
+            right = n - 1
+            index = 0
+            while left <= right:
+                encrypted_chars[index] = chars[left]
+                index += 1
+                if left != right:
+                    encrypted_chars[index] = chars[right]
+                    index += 1
+                left += 1
+                right -= 1
+
+            # Join the list back to a string
+            swapped_text = ''.join(encrypted_chars)
+            print(swapped_text)
+            # Encrypt the swapped text using RSA
+            return Cipher.RSA.encrypt_RSA(''.join(swapped_text), public_key)
+        
+        @staticmethod
+        def swap_decrypt(encrypted, private_key):
+            """
+            Decrypts a message that was encrypted with the swap_encrypt method.
+
+            Args:
+                encrypted (list): The encrypted data.
+                private_key (tuple): The private key for RSA decryption.
+
+            Returns:
+                str: The decrypted and restored original message.
+            """
+            # Decrypt using RSA
+            decrypted_text = Cipher.RSA.decrypt_RSA(encrypted, private_key)
+
+            # Reverse the swap (restore the original order)
+            # Convert the encrypted text to a list to allow modification
+            chars = list(decrypted_text)
+            n = len(chars)
+            decrypted_chars = [''] * n
+
+            # Reconstruct the original positions
+            left = 0
+            right = n - 1
+            index = 0
+            while left <= right:
+                decrypted_chars[left] = chars[index]
+                index += 1
+                if left != right:
+                    decrypted_chars[right] = chars[index]
+                    index += 1
+                left += 1
+                right -= 1
+
+            # Join the list back to a string
+            decrypted_text = ''.join(decrypted_chars)
+            return decrypted_text
+        
     class Base64:
         @staticmethod
         def encode(data: bytes) -> str:
