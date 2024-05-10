@@ -31,3 +31,6 @@ Cipher ->
 
 7/5/2024
 - Added individual file encryption for File.py
+
+10/5/2024
+- Added Swap RSA
