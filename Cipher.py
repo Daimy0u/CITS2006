@@ -190,7 +190,6 @@ class Cipher:
 
             # Join the list back to a string
             swapped_text = ''.join(encrypted_chars)
-            print(swapped_text)
             # Encrypt the swapped text using RSA
             return Cipher.RSA.encrypt_RSA(''.join(swapped_text), public_key)
         
