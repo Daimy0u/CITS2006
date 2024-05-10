@@ -14,8 +14,8 @@ def XOR():
 
 
 def RSA():
-    public, private = Cipher.RSA.generate_keypair(10000, 100000)
-    text = "RSA Example"
+
+    text = "123456789"
     encrypted = Cipher.RSA.encrypt_RSA(text, public)  # Encrypt with public key
     print("RSA Encrypted:", encrypted)
     
@@ -34,7 +34,24 @@ def Base64():
     print("Base64 Decoded:", decoded_text)
     print("\n\n")
 
+def Swap():
 
+    
+    # Define the text to be encrypted
+    text = "123456789"
+    print("Original text:", text)
+    
+    # Encrypt the text using the public key
+    encrypted = Cipher.Swap.swap_encrypt(text, public)
+    print("Swap Encrypted:", encrypted)
+    
+    # Decrypt the encrypted text using the private key
+    decrypted = Cipher.Swap.swap_decrypt(encrypted, private)
+    print("Swap Decrypted:", decrypted)
+    print("\n\n")
+
+public, private = Cipher.RSA.generate_keypair(10000, 100000)
 XOR()
 RSA()
 Base64()
+Swap()

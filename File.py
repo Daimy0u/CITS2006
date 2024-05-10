@@ -194,6 +194,82 @@ class File:
 
             print("Base64 Decryption completed.")
 
+    class Swap:
+        @staticmethod
+        def Encrypt(path):
+            current = os.getcwd()
+            keyRSA = Cipher.RSA.generate_keypair(10000,100000)
+            public_key,private_key = keyRSA
+            
+            
+            with open(os.path.join(current, '.key.txt'), 'w') as key_file:
+                    key_file.write(f"{public_key}\n")
+                    key_file.write(f"{private_key}")
+
+            if os.path.isdir(path):
+
+                for root, _, files in os.walk(path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        with open(file_path, 'r') as f:
+                            data = f.read()
+
+                        encrypted_data = Cipher.Swap.swap_encrypt(data,public_key)
+
+                        with open(file_path, 'w') as f:
+                                    f.write(' '.join(map(str, encrypted_data)))
+                        print(f"Encrypted: {file_path}")
+
+            elif os.path.isfile(path):
+                with open(path, 'r') as f:
+                    data = f.read()
+
+                encrypted_data = Cipher.Swap.swap_encrypt(data,public_key)
+
+                with open(path, 'w') as f:
+                            f.write(' '.join(map(str, encrypted_data)))
+                print(f"Encrypted: {path}")
+
+            print("Swap Encryption completed.")
+
+        @staticmethod
+        def Decrypt(path):
+            current = os.getcwd()
+
+            try:
+                with open(os.path.join(current, '.key.txt'), 'r') as key_file:
+                    keys = key_file.readlines()
+                    private_key = eval(keys[1])
+            except FileNotFoundError: #Error handling if RSA.Encrypt is not run before Decrypting
+                 print("Error: The .key.txt file does not exists\nDid you run File.RSA.Encrypt()?")
+
+            if os.path.isdir(path):
+
+                for root, _, files in os.walk(path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        with open(file_path, 'r') as f:
+                                encrypted = f.read()
+                        encrypted = list(map(int, encrypted.split()))
+                        decrypted = Cipher.Swap.swap_decrypt(encrypted, private_key)
+                        with open(file_path, 'w') as f:
+                            f.write(decrypted)
+                        print(f"Decrypted: {file_path}")
+            
+            elif os.path.isfile(path):
+                with open(path, 'r') as f:
+                        encrypted = f.read()
+                encrypted = list(map(int, encrypted.split()))
+                decrypted = Cipher.Swap.swap_decrypt(encrypted, private_key)
+                with open(path, 'w') as f:
+                    f.write(decrypted)
+                print(f"Decrypted: {path}")
+
+            print("Swap decryption completed.")
+            os.remove(os.path.join(current, '.key.txt')) #removing hidden key file
+            
+              
+
 #Test code for individual files
 """ 
 import subprocess
@@ -247,6 +323,21 @@ def main():
 
     print("Decrypting with Base64 cipher...")
     File.Base64.Decrypt(file_path)
+    print()
+
+    print("Decrypted file content:")
+    subprocess.run(["cat", file_path])
+
+    print("Encrypting with Swap cipher...")
+    File.Swap.Encrypt(file_path)
+    print()
+
+    print("Encrypted file content:")
+    subprocess.run(["cat", file_path])
+    print()
+
+    print("Decrypting with Swap cipher...")
+    File.Swap.Decrypt(file_path)
     print()
 
     print("Decrypted file content:")
