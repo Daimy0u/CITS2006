@@ -1,8 +1,11 @@
-from Cipher import Cipher as cph
+from Cipher import *
 
-p_text = "This is a test text string"
-key = cph.RSA.generate_keypair(1000,10000)
-c_text = cph.RSA.encrypt_RSA(p_text,key[0])
-print(c_text)
-p_text = cph.RSA.decrypt_RSA(c_text,key[1])
-print(p_text)
+p_text = "This is a test string yipee"
+
+
+p_text = p_text.encode()
+c = Cipher.Base64.encode(p_text)
+print(c)
+p = Cipher.Base64.decode(c)
+p = p.decode()
+print(p)
