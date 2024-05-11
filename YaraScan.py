@@ -1,48 +1,43 @@
+from abc import abstractmethod
+from .models.rules import *
+import os
 import yara
-DEFAULT_DIRECTORY = '/home/'
-FILE_DIRECTORY = '/Security'
+
+YARA_PATH = './Rules.yar'
+
+class HiddenExecutable(Rule):
+    def __init__(self, rule:YaraRule):
+        super().__init__(name="Hidden Executable", 
+                         desc="Detect Executable Bytes in a Non-Executable Format",
+                         outputMsg="File is an executable but has mismatched extension!",
+                         rule=rule)
+
+    def scan(self,filePath)-> Tuple[Flag,Output | None,Path]:
+        matches = self.rules.getMatches(filePath)
+        ext = filePath[-5:].split('.')[1]
+        flag = False
+        if matches['isExecutable'] is True:
+            match ext:
+                case '.pdf':
+                    flag = True
+                case '.doc':
+                    flag = True
+                case '.docx':
+                    flag = True
+                case '.txt':
+                    flag = True
+                case '.xls':
+                    flag = True
+                case _:
+                    flag = False
+        if flag: return self.__output(flag,self.outputMsg,filePath)
+        else: return self.__output(flag,None,filePath)
+
+
+
+
+class RuleContainer:
+    def __init__(self,yaraRulePath=YARA_PATH):
+        self.rule = YaraRule(yaraRulePath)
+
     
-
-class Rule:
-    def __init__(self, ruleFilePath):
-        self.rules = [yara.compile(ruleFilePath)]
-
-    def getMatches(self, filePath):
-        matches = []
-        for r in self.rules:
-            matches.append(r.match(filePath))
-        return matches
-    
-    def run(self,filePath):
-        result = []
-        for match in self.getMatches(filePath):
-            result.append((match.rule,filePath))
-        return result
-    
-class RuleSet(Rule):
-
-    def addRule(self, ruleFilePath):
-        self.rules.append(yara.compile(ruleFilePath))
-        
-
-class DefaultImplementation:
-    rule = FILE_DIRECTORY + '/Rules.yar'
-    hashCheck = False
-
-    @classmethod
-    def __init__(cls,rule:str,ruleHashComparison:str):
-        ##TODO: Compare Rule Hash with Fixed Known Hash - TO BE IMPLEMENTED
-        #cls.hash = hash of rule
-        cls.hashCheck = True
-        return
-    
-    @classmethod
-    def scanAll(cls):
-        if cls.hashCheck is False:
-            raise ValueError(f"Failed rule hash check!")
-        #TODO
-        pass
-
-    @classmethod
-    def scanFile(cls, filePath:str):
-        pass
