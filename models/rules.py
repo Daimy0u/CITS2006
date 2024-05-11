@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Tuple, TypeAlias
+from typing import Tuple, TypeAlias, Optional
 import yara
 
 #Typing
@@ -10,15 +10,19 @@ Path : TypeAlias = str
 class YaraRule:
     def __init__(self, ruleFilePath):
         self.rules = [yara.compile(ruleFilePath)]
+        self.matchData = {}
     
     def addRule(self, ruleFilePath):
         self.rules.append(yara.compile(ruleFilePath))
 
-    def getMatches(self, filePath):
+    def getMatches(self, filePath, hashStr: Optional[str], overwriteCache = False):
+        if hashStr and (hashStr in self.matchData.keys()) and not overwriteCache: return self.matchData[hashStr]
         res = {}
         for r in self.rules:
             for m in r.match(filePath):
                 res[m.rule] = True
+        if hashStr:
+            self.matchData[hashStr] = res
         return res
     
         

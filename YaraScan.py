@@ -33,10 +33,17 @@ class HiddenExecutable(Rule):
         if flag: return self.__output(flag,self.outputMsg,filePath)
         else: return self.__output(flag,None,filePath)
 
+class SuspiciousUrl(Rule):
+    def __init__(self, rule:YaraRule):
+        super().__init__(name="Suspicious URL", 
+                         desc="Detect Suspicious Non-Standard TLD URL Access",
+                         outputMsg="Suspicious URL Detected!",
+                         rule=rule)
 
 
 
 class RuleContainer:
+    DEFAULT = [HiddenExecutable]
     def __init__(self,yaraRulePath=YARA_PATH):
         self.rule = YaraRule(yaraRulePath)
 
