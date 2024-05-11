@@ -3,12 +3,6 @@ import time
 import random
 from mtdrandom import FileEncryptorMTD
 
-"""
-# Path to the directory
-directory = "./test/hello.txt"
-FileEncryptorMTD().encrypt_file(directory)
-print("File re-encrypted:", directory)
-"""
 def encrypt_files_in_directory(directory):
     """
     Encrypt all files in the given directory with a different encryption method.
