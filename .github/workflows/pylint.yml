@@ -4,10 +4,10 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.12"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -20,4 +20,4 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint --include-naming-hint=y --class-naming-style=camelCase --method-naming-style=camelCase --function-naming-style=camelCase $(git ls-files '*.py')
+        pylint --rcfile=.pylintrc --include-naming-hint=y --class-naming-style=camelCase --method-naming-style=camelCase --function-naming-style=camelCase $(git ls-files '*.py')
