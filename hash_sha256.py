@@ -1,4 +1,7 @@
 import sys
+import os
+import random
+from datetime import datetime
 
 # Constants for SHA-256
 K = [
@@ -91,7 +94,7 @@ def sha256(message):
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python sha256.py <filename>")
+        print("Usage: python hash_sha256.py <filename>")
         return
 
     filename = sys.argv[1]
@@ -101,6 +104,21 @@ def main():
             content = file.read()
             hashed_content = sha256(content)
             print(hashed_content)
+
+            #check current time
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            hour = int(datetime.now().strftime("%H"))
+
+            #if function is invoked outside of business hours (before 7AM or after 6PM), flag as suspicious and log it to master_log.txt
+            if hour < 7 or hour >= 18:
+                with open("master_log.txt", "a") as f:
+                    f.write(f"hash_outside_business_hours;{timestamp};{filename};{hashed_content}")
+            
+            #send log to hash_log.txt
+            with open("hash_log.txt", "a") as f:
+                f.write(f"{timestamp};{filename};{hashed_content};sha256\n")
+            
+
     except FileNotFoundError:
         print(f"File '{filename}' not found.")
 

@@ -92,7 +92,14 @@ class SHA256:
             hash_value += h.to_bytes(4, byteorder='big')
 
         # Truncate hash value to 50 characters
-        return hash_value.hex()[:50]
+        hashed_value = hash_value.hex()[:50]
+
+        # Append timestamp and hash value to hash_log
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open("hash_log.txt", "a") as f:
+            f.write(f"{timestamp}: {hashed_value}\n")
+
+        return hashed_value
 
 
 class FNV1a:

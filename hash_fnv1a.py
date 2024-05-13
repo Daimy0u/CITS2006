@@ -1,3 +1,8 @@
+import sys
+import os
+import random
+from datetime import datetime
+
 def fnv1a_hash(data):
     """
     FNV-1a hash function implementation.
@@ -21,7 +26,27 @@ def fnv1a_hash(data):
     
     return hash_str
 
-# Example usage:
-data = b"Hello, world!"
-hash_value = fnv1a_hash(data)
-print("FNV-1a Hash:", hash_value)
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python hash_fnv1a.py <filename>")
+        return
+
+    filename = sys.argv[1]
+
+    try:
+        with open(filename, 'rb') as file:
+            content = file.read()
+            hashed_content = fnv1a_hash(content)
+            print(hashed_content)
+
+            #send log to hash_log.txt
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open("hash_log.txt", "a") as f:
+                f.write(f"{timestamp};{filename};{hashed_content};fnv1a\n")
+            
+
+    except FileNotFoundError:
+        print(f"File '{filename}' not found.")
+
+if __name__ == "__main__":
+    main()
