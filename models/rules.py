@@ -4,8 +4,8 @@ import yara
 
 #Typing
 Flag : TypeAlias = bool
-Output : TypeAlias = str
-Path : TypeAlias = str
+OutputWarning : TypeAlias = str
+Output : TypeAlias = list
 
 class YaraRule:
     def __init__(self, ruleFilePath):
@@ -27,17 +27,15 @@ class YaraRule:
     
         
 class Rule:
-    def __init__(self,name:str,desc:str,outputMsg:str,yaraRule:YaraRule):
+    def __init__(self,name:str,desc:str,outputWarning:str,yaraRule:YaraRule):
         self.name = name
         self.desc = desc
-        self.output = outputMsg
+        self.warning = outputWarning
         self.rules = yaraRule
     
     @abstractmethod
     def scan(self,file):
         pass
 
-    def __output(self,path,flag) -> Tuple[Flag,
-                                          Output,
-                                          Path]:
-        return [flag,self.outputMsg,path]
+    def __output(self,output,flag) -> dict:
+        return {"flag":flag,"warning":self.warning,"output":output}
