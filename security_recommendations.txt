@@ -1,0 +1,6 @@
+YARA: dummy.txt is isSketchyTLD. Please check this file
+ENCRYPTION: 'XOR' is not the standard. Please change.
+HASH ALGORITHM: 'fnv1a' is not the standard. Please change.
+HASH DUPLICATE: found for files: ('dummy2.txt', 'dummy.txt'). Please check these files.
+HASH OUTSIDE BUSINESS HOURS: 'dummy.txt' was modified outside of business hours (timestamp: 2024-05-13 00:20:52). Please investigate.
+HASH DUPLICATE: found for files: ('dummy3.txt', 'dummy4.txt'). Please check these files.
