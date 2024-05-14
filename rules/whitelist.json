@@ -1,9 +1,0 @@
-{
-    "desc" : "Whitelist Configuration for Yara Engine (global whitelist)",
-    "global" : {
-        "FILEHASH" : {
-            "name" : "Whitelist Testing File",
-            "desc" : "For testing purposes"
-        }
-    }
-}
