@@ -10,9 +10,7 @@ for fName in files:
     fPath = current_directory + "\\" + fName
     fHash = hashlib.md5(open(fPath,'rb').read()).hexdigest()
     sData, lList = engine.scan(fPath,fHash)
-    for l in lList:
-        print(l)
-    
-    print(sData.events,sData.sum)
+    print(lList)
+    print([x.rule for x in sData.events],sData.sum)
     
     

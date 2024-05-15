@@ -3,14 +3,12 @@ from .models.scans import ScanData,Event
 from typing import List,Tuple
 
 class Executable(BaseRule):
-    def __init__(self, rule:YaraRule):
+    def __init__(self):
         super().__init__(name="Executable", 
                         desc="Detect ELF Files",
-                        outputWarning="Unauthorized Executable ELF File!",
-                        yaraRule=rule)
+                        outputWarning="Unauthorized Executable ELF File!")
         
-    def scan(self,filePath,fileHash,whitelist=False)->tuple:
-        matches = self.rules.getMatches(filePath,fileHash)
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
         if 'isExecutable' in matches:
             if whitelist:
                 return self.infoPositive(filePath,fileHash,whitelist,severity=0)
@@ -20,16 +18,14 @@ class Executable(BaseRule):
             return self.infoNegative()
 
 class SuspiciousUrl(BaseRule):
-    def __init__(self, rule:YaraRule):
+    def __init__(self):
         super().__init__(name="Suspicious URL", 
                         desc="Detect Suspicious Non-Standard TLD URL Access",
                         outputWarning="Suspicious URL Detected!",
-                        yaraRule=rule,
                         severity=2)
         self.passing_tld = ['.com','.gov','.edu','.net','.org']
         
-    def scan(self,filePath,fileHash,whitelist=False)->tuple:
-        matches = self.rules.getMatches(filePath,fileHash)
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
         if 'isURL' in matches:
             flag = False
             urls = [x.plaintext() for x in matches['isURL']]
@@ -45,17 +41,47 @@ class SuspiciousUrl(BaseRule):
                 return self.infoPositive(filePath,fileHash,whitelist,severity=severity)
         else: 
             return self.infoNegative()
+
+class Script(BaseRule):
+    def __init__(self):
+       super().__init__(name="Scripts", 
+                        desc="Detect unauthorized scripts.",
+                        outputWarning="File is an non-whitelisted script!",
+                        severity=4)
+       
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
+        if 'isScript' in matches:
+            if whitelist:
+                return self.infoPositive(filePath,fileHash,whitelist,severity=0)
+            else:   
+                return self.infoPositive(filePath,fileHash,whitelist)
+        else: 
+            return self.infoNegative()
+        
+class MaliciousScript(BaseRule):
+    def __init__(self):
+       super().__init__(name="Malicious Script", 
+                        desc="High confidence malicious script detection.",
+                        outputWarning="File is very likely a malicious script!",
+                        severity=5)
+       
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
+        if 'isMaliciousScript' in matches:
+            if whitelist:
+                return self.infoPositive(filePath,fileHash,whitelist,severity=0)
+            else:   
+                return self.infoPositive(filePath,fileHash,whitelist)
+        else: 
+            return self.infoNegative()
         
 class NetworkAccess(BaseRule):
-    def __init__(self, rule:YaraRule):
+    def __init__(self):
        super().__init__(name="Network Access", 
                         desc="Detect Any Network Access by Files",
                         outputWarning="File has unauthorized network probing/access!",
-                        yaraRule=rule,
                         severity=4)
         
-    def scan(self,filePath,fileHash,whitelist=False)->tuple:
-        matches = self.rules.getMatches(filePath,fileHash)
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
         if 'isAccessingNetwork' in matches:
             if whitelist:
                 return self.infoPositive(filePath,fileHash,whitelist,severity=0)
@@ -71,11 +97,18 @@ class Base:
     Base-set rules, made/tailored to the company.
     """    
     @classmethod
-    def __init__(cls,basePath,whitelist=None):
+    def __init__(cls,rule:YaraRule,whitelist=None):
         if whitelist is None: whitelist = []
-        rule = YaraRule(basePath)
+        cls.rule = rule
         cls.whitelist = whitelist
-        cls.ruleset = [Executable(rule),SuspiciousUrl(rule),NetworkAccess(rule)]
+        cls.cache = {}
+        
+        cls.ruleset = []
+        #Load Base Rules
+        #Files
+        cls.ruleset += [Executable(),Script(),MaliciousScript()]
+        #Networks
+        cls.ruleset += [SuspiciousUrl(),NetworkAccess()] 
         
     @classmethod
     def scan(cls, filePath:str, fileHash:str) -> Tuple[ScanData,List[str]]:
@@ -91,32 +124,24 @@ class Base:
         """
         scan = ScanData(filePath,fileHash)
         logStrList = []
+        if fileHash in cls.cache.keys() and cls.cache[fileHash]["path"] == filePath:
+            return cls.cache[fileHash]["scan"],cls.cache[fileHash]["logStrList"]
         
+        matches = cls.rule.getMatches(filePath)
         for rule in cls.ruleset:
             if fileHash in cls.whitelist:  
-                flag,data,logstring = rule.scan(filePath,fileHash,whitelist=True)
+                flag,data,logstring = rule.scan(filePath,fileHash,matches,whitelist=True)
             else:
-                flag,data,logstring = rule.scan(filePath,fileHash,whitelist=False)
+                flag,data,logstring = rule.scan(filePath,fileHash,matches,whitelist=False)
             if flag: 
                 scan.addEvent(Event(rule.name,rule.warning,data["severity"],data["whitelist"]))
-            logStrList.append(logstring)
-        return scan,logStrList
+            if logstring is not None: logStrList.append(logstring)
             
-                
-    @classmethod
-    def getInstances(cls):
-        """
-        Gets rule triggers, includes whitelisted files. Only processes files scanned.
-
-        Returns:
-            dict: {
-                "ruleName":{
-                    "fileHash":"filePath
-                }
-            }
-        """
-        res = {}
-        for rule in cls.ruleset:
-            res[rule.name] = rule.getInstances()
-        return res
+        #Store Cache
+        cls.cache[fileHash] = {
+            "path":filePath,
+            "scan":scan,
+            "logStrList":logStrList
+        }
+        return scan,logStrList
     

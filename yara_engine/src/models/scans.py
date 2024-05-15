@@ -35,12 +35,13 @@ class ScanData:
             for e in self.events:
                 self.sum[e.severity] += 1
         
-    def data(self) -> Tuple[File_Info,Events] | False:
+    def getData(self) -> Tuple[File_Info,Events] | False:
         if not self.scanned: return False
         return self.file,self.events
     
     def addEvent(self,event:Event):
         self.events.append(event)
+        self.sum[event.severity] += 1
         
         
 class ScanSetData:

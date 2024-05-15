@@ -27,6 +27,16 @@ rule isScript {
         ($reverse_shell or $base64_data)
 }
 
+rule isMaliciousScript {
+    strings:
+        $sa1 = "curl http" base64
+		$sa2 = "wget http" base64
+		$sb1 = "chmod 777 " base64
+		$sb2 = "/tmp/" base64
+    condition:
+        1 of ($sa*) and 1 of ($sb*)
+}
+
 rule isUrl {
     strings:
         $url = /https?:\/\/([\w\.-]+)([\/\w \.-]*)/ nocase

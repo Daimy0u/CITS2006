@@ -30,14 +30,11 @@ class YaraRule:
     def addRule(self, ruleFilePath):
         self.rules.append(yara.compile(ruleFilePath))
 
-    def getMatches(self, filePath, fileHash: str, overwriteCache = False):
-        if fileHash in self.matchData.keys() and not overwriteCache: return self.matchData[fileHash]
+    def getMatches(self, filePath):
         res = {}
         for r in self.rules:
             for m in r.match(filePath):
                 res[m.rule] = [x.instances for x in m.strings]
-        if fileHash:
-            self.matchData[fileHash] = res
         return res
     
         
@@ -45,7 +42,7 @@ class BaseRule:
     """
         Custom Rule Class, for python-yara logic integration.
     """
-    def __init__(self,name:str,desc:str,outputWarning:str,yaraRule:YaraRule,severity=4):
+    def __init__(self,name:str,desc:str,outputWarning:str,severity=4):
         """
         Create new custom py-yara rule.
         
@@ -61,7 +58,6 @@ class BaseRule:
         self.name = name
         self.desc = desc
         self.warning = outputWarning
-        self.rules = yaraRule
         self.severity = severity
         self.instances = {}
     
