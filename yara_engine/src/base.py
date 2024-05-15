@@ -10,14 +10,14 @@ class Executable(BaseRule):
                         yaraRule=rule)
         
     def scan(self,filePath,fileHash,whitelist=False)->tuple:
-        matches = self.rules.getMatches(filePath)
+        matches = self.rules.getMatches(filePath,fileHash)
         if 'isExecutable' in matches:
             if whitelist:
-                return self.__infoPositive(filePath,fileHash,whitelist,severity=0)
+                return self.infoPositive(filePath,fileHash,whitelist,severity=0)
             else:
-                return self.__infoPositive(filePath,fileHash,whitelist)
+                return self.infoPositive(filePath,fileHash,whitelist)
         else: 
-            return self.__infoNegative()
+            return self.infoNegative()
 
 class SuspiciousUrl(BaseRule):
     def __init__(self, rule:YaraRule):
@@ -25,17 +25,26 @@ class SuspiciousUrl(BaseRule):
                         desc="Detect Suspicious Non-Standard TLD URL Access",
                         outputWarning="Suspicious URL Detected!",
                         yaraRule=rule,
-                        severity=3)
+                        severity=2)
+        self.passing_tld = ['.com','.gov','.edu','.net','.org']
         
     def scan(self,filePath,fileHash,whitelist=False)->tuple:
-        matches = self.rules.getMatches(filePath)
-        if 'isSketchyTLD' in matches:
+        matches = self.rules.getMatches(filePath,fileHash)
+        if 'isURL' in matches:
+            flag = False
+            urls = [x.plaintext() for x in matches['isURL']]
+            for url in urls:
+                for tld in self.passing_tld:
+                    if tld not in url:
+                        flag = True
             if whitelist:
-                return self.__infoPositive(filePath,fileHash,whitelist,severity=0)
+                return self.infoPositive(filePath,fileHash,whitelist,severity=0)
             else:
-                return self.__infoPositive(filePath,fileHash,whitelist)
+                if flag == False: severity = 1
+                else: severity = 2
+                return self.infoPositive(filePath,fileHash,whitelist,severity=severity)
         else: 
-            return self.__infoNegative()
+            return self.infoNegative()
         
 class NetworkAccess(BaseRule):
     def __init__(self, rule:YaraRule):
@@ -46,14 +55,14 @@ class NetworkAccess(BaseRule):
                         severity=4)
         
     def scan(self,filePath,fileHash,whitelist=False)->tuple:
-        matches = self.rules.getMatches(filePath)
+        matches = self.rules.getMatches(filePath,fileHash)
         if 'isAccessingNetwork' in matches:
             if whitelist:
-                return self.__infoPositive(filePath,fileHash,whitelist,severity=0)
+                return self.infoPositive(filePath,fileHash,whitelist,severity=0)
             else:
-                return self.__infoPositive(filePath,fileHash,whitelist)
+                return self.infoPositive(filePath,fileHash,whitelist)
         else: 
-            return self.__infoNegative()
+            return self.infoNegative()
     
 
 

@@ -27,11 +27,11 @@ rule isScript {
         ($reverse_shell or $base64_data)
 }
 
-rule isSketchyTLD {
+rule isUrl {
     strings:
-        $tld_signature = /(?:http|https):\/\/[^\/]+\.([a-z]{3,})\/.*/ nocase
+        $url = /https?:\/\/([\w\.-]+)([\/\w \.-]*)/ nocase
     condition:
-        $tld_signature
+        $url
 }
 
 rule isAccessingNetwork {

@@ -72,7 +72,7 @@ class BaseRule:
     def getInstances(self):
         return self.instances
     
-    def __infoPositive(self,filePath:str,fileHash:str,whitelist=False,severity=None) -> tuple:
+    def infoPositive(self,filePath:str,fileHash:str,whitelist=False,severity=None) -> tuple:
         """
         Returns:
             [
@@ -85,13 +85,13 @@ class BaseRule:
             severity = SEVERITY_TABLE[self.severity]
         else: 
             severity = SEVERITY_TABLE[severity]
-        return [True,self.__infoDict(whitelist,severity),self.__infoStr(filePath,fileHash,severity)]
+        return [True,self.infoDict(whitelist,severity),self.infoStr(filePath,fileHash,severity)]
     
-    def __infoNegative(self) -> tuple:
+    def infoNegative(self) -> tuple:
         return [False,None,None]
 
     
-    def __infoDict(self,whitelist=False,severity=None) -> dict:
+    def infoDict(self,whitelist=False,severity=None) -> dict:
         """
         ENSURE THIS IS STORED IN A MEMORY - WITH FILE HASH AS KEY!
         """
@@ -100,6 +100,6 @@ class BaseRule:
                 "whitelist":whitelist
                 }
     
-    def __infoStr(self,fileName,fileHash,severity) -> str:
+    def infoStr(self,fileName,fileHash,severity) -> str:
         return f"{severity} | {self.name} | {self.warning} | {fileName} | {fileHash}"
     

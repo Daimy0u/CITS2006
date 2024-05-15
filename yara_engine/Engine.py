@@ -1,6 +1,6 @@
 import os
 import json
-from time import time
+import time
 from .src.base import *
 from .src.models.scans import ScanSetData
 
@@ -8,12 +8,12 @@ current_directory = os.getcwd()
 files = os.listdir(current_directory)
 
 BASE = current_directory + '/rules' + '/base/base.yar'
-CONFIG = json.load(current_directory + '/config.json')
+#CONFIG = json.load(current_directory + '/config.json')
 
         
 class YaraEngine:
-    def __init__(self):
-        self.base = Base(BASE)
+    def __init__(self,fileDir=BASE):
+        self.base = Base(fileDir)
         self.queue = []
         self.scans = ScanSetData(time.time())
         
