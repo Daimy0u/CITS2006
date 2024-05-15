@@ -49,18 +49,6 @@ def scan_with_yara(filepath):
         print(f"Yara matches found in {filepath}: {matches}")
         # Additional action (e.g., alerting)
 
-# Function to check file integrity
-def hash_file(filepath):
-    with open(filepath, 'rb') as afile:
-        buf = afile.read()
-        print("doing ")
-        print(buf)
-        print(SHA256.hash(buf))
-        #hashed_file = SHA256.hash(buf)
-        #print(f"SHA-256 hash of {filepath} is {hashed_file}")
-    # Check previous hash and compare with the new hash of the file to detect modification
-    # Compare against known good hash here
-
 
 class EventHandler(pyinotify.ProcessEvent):
 
@@ -69,31 +57,38 @@ class EventHandler(pyinotify.ProcessEvent):
         print(f"Creating: {event.pathname}")
         #random_encrypt_decrypt_file(event.pathname)
         # scan_with_yara(event.pathname)
-        hash_file(event.pathname)
-        MTD_Utils.Random_Encryption(event.pathname)
+        MTD_Utils.MTD_Hashing(event.pathname)
+        MTD_Utils.Random_Encryption(event.pathname, True)
         #change encryption if its bad hash
 
         
 
     def process_IN_MODIFY(self, event):
-        logging.info(f"File Modified: {event.pathname}")
-        print(f"Modifying: {event}")
+        logging.info(f"File Modified: {event.pathname} by MTD ")
+        print(f"Modifying")
         encryption_log = open("./logs/encryption_log.log")
 
         #Finding last encryption
         with open("./logs/encryption_log.log") as file:
             #Checking for Empty log file
             change_needed = True
-            #Checking last time file was encrypted
-    
+
+            #store boolean if file was decrypted or not 
+            decrypted = False
+
+            #Checking last log of file
+        
             for line in reversed(file.readlines()):
+                # Find
                 if event.pathname in line: 
                     print(line)
+                    if "Decrypt" in line: 
+                        decrypted = True
 
                     latest_encryption_log_timestamp = " ".join(line.split(" ")[0:2])
 
                     print(f"Last time file was encrypted : {latest_encryption_log_timestamp} Latest Modification time {latest_logged_modification}")
-                    
+                    #only encrypt file if file wasn't already encrypted by MTD
                     if(latest_encryption_log_timestamp == latest_logged_modification): 
                         print("File was just encrypted")
                         change_needed = False
@@ -106,13 +101,16 @@ class EventHandler(pyinotify.ProcessEvent):
 
             if change_needed: 
                 print("here")
-                MTD_Utils.Random_Encryption(event.pathname)
+                MTD_Utils.Random_Encryption(event.pathname, decrypted)
+
                 print("MTD Encryption is done")
+            
 
 
         #scan_with_yara(event.pathname)
         #check_hash(event.pathname)
-
+    def process_IN_ACCESS(self, event): 
+        print("somebody reading ")
     def process_IN_CLOSE_NOWRITE(self, event):
         logging.info(f"File being accessed by non-writable ")
         print("File now write ")
