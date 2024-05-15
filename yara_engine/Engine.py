@@ -1,8 +1,8 @@
 import os
 import json
 from time import time
-from src.base import Base
-from src.models.scans import ScanSetData
+from .src.base import *
+from .src.models.scans import ScanSetData
 
 current_directory = os.getcwd()
 files = os.listdir(current_directory)
@@ -45,16 +45,16 @@ class YaraEngine:
             print(f"Scan Progress ({initLen-len(self.queue)}/{initLen})")
             
         sumE = 0
+        sumL = []
         for s in scan.sum.keys():
             sumE += scan.sum[s]
+            sumL.append((s,scan.sum[s]))
         print(f"Scan Finished!")
         print(f"Summary:")
         print("========================================")
         print(f"Total Rule Triggers: {sumE}")
-        print(f"CRITICAL: {scan.sum["CRITICAL"]}")
-        print(f"SEVERE: {scan.sum["SEVERE"]}")
-        print(f"MODERATE: {scan.sum["MODERATE"]}")
-        print(f"LOW: {scan.sum["LOW"]}")
+        for r in sumL:
+            print(f"{r[0]}: {r[1]}")
         print("========================================")
         print("Logs:")
         print("========================================")

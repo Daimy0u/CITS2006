@@ -1,5 +1,3 @@
-import os
-import json
 from .models.rules import *
 from .models.scans import ScanData,Event
 from typing import List,Tuple
@@ -49,7 +47,7 @@ class NetworkAccess(BaseRule):
         
     def scan(self,filePath,fileHash,whitelist=False)->tuple:
         matches = self.rules.getMatches(filePath)
-        if 'isSketchyTLD' in matches:
+        if 'isAccessingNetwork' in matches:
             if whitelist:
                 return self.__infoPositive(filePath,fileHash,whitelist,severity=0)
             else:
