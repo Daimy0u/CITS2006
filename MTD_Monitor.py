@@ -6,12 +6,14 @@ import logging
 from logging.handlers import RotatingFileHandler
 from File import *
 from MTD_Utils import *
-
+import shutil
 # Set up the path for monitoring and Yara rule file
 MONITOR_PATH = "rba"
 YARA_RULES_PATH = "/path/to/yara/rules/malware_detection.yar"
+BACK_UP = "backups"
 latest_logged_modification = ""
-
+if not os.path.exists(BACK_UP):
+    os.makedirs(BACK_UP)
 class TimestampExtractorHandler(logging.Handler):
     def emit(self, record):
         # Access the creation time of the log record and format it
@@ -49,6 +51,7 @@ def scan_with_yara(filepath):
         print(f"Yara matches found in {filepath}: {matches}")
         # Additional action (e.g., alerting)
 
+# Function to check file integrity
 
 class EventHandler(pyinotify.ProcessEvent):
 
@@ -57,8 +60,14 @@ class EventHandler(pyinotify.ProcessEvent):
         print(f"Creating: {event.pathname}")
         #random_encrypt_decrypt_file(event.pathname)
         # scan_with_yara(event.pathname)
+        
+        
         MTD_Utils.MTD_Hashing(event.pathname)
         MTD_Utils.Random_Encryption(event.pathname, True)
+        #Backup the encrypted file
+
+        shutil.copy(event.pathname, os.path.join(BACK_UP, os.path.basename(event.pathname)))
+    
         #change encryption if its bad hash
 
         
@@ -100,8 +109,14 @@ class EventHandler(pyinotify.ProcessEvent):
 
 
             if change_needed: 
-                print("here")
-                MTD_Utils.Random_Encryption(event.pathname, decrypted)
+                backup_file_path = os.path.join(BACK_UP, os.path.basename(event.pathname))
+                if os.path.exists(backup_file_path):
+                    shutil.copy(backup_file_path, event.pathname)
+                    logger.info(f"Reverted changes for {event.pathname}")
+                MTD_Utils.Random_Encryption(event.pathname, False)
+                #backup file encrypted with new system 
+                shutil.copy(event.pathname, os.path.join(BACK_UP, os.path.basename(event.pathname)))
+    
 
                 print("MTD Encryption is done")
             
