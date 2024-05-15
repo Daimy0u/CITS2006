@@ -2,7 +2,6 @@ import os
 import random
 from datetime import datetime
 
-
 class SHA256:
     # Constants for SHA-256
     K = [
