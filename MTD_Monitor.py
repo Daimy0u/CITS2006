@@ -1,13 +1,11 @@
 import hashlib
 import pyinotify
-import subprocess
-import os
-import time
 from datetime import datetime
+from Hashing import *
 import logging
 from logging.handlers import RotatingFileHandler
 from File import *
-from MTD_Encryption import random_encrypt_decrypt_file
+from MTD_Utils import *
 
 # Set up the path for monitoring and Yara rule file
 MONITOR_PATH = "rba"
@@ -17,6 +15,7 @@ latest_logged_modification = ""
 class TimestampExtractorHandler(logging.Handler):
     def emit(self, record):
         # Access the creation time of the log record and format it
+        global latest_logged_modification
         log_time = datetime.fromtimestamp(record.created)
         formatted_time = log_time.strftime('%Y-%m-%d %H:%M:%S')
         latest_logged_modification = formatted_time
@@ -51,13 +50,14 @@ def scan_with_yara(filepath):
         # Additional action (e.g., alerting)
 
 # Function to check file integrity
-def check_hash(filepath):
-    hasher = hashlib.sha256()
+def hash_file(filepath):
     with open(filepath, 'rb') as afile:
         buf = afile.read()
-        hasher.update(buf)
-    file_hash = hasher.hexdigest()
-    print(f"SHA-256 hash of {filepath} is {file_hash}")
+        print("doing ")
+        print(buf)
+        print(SHA256.hash(buf))
+        #hashed_file = SHA256.hash(buf)
+        #print(f"SHA-256 hash of {filepath} is {hashed_file}")
     # Check previous hash and compare with the new hash of the file to detect modification
     # Compare against known good hash here
 
@@ -67,10 +67,10 @@ class EventHandler(pyinotify.ProcessEvent):
     def process_IN_CREATE(self, event): 
         logging.info(f"File Created: {event.pathname}")
         print(f"Creating: {event.pathname}")
-        random_encrypt_decrypt_file(event.pathname)
         #random_encrypt_decrypt_file(event.pathname)
         # scan_with_yara(event.pathname)
-        # check_hash(event.pathname)
+        hash_file(event.pathname)
+        MTD_Utils.Random_Encryption(event.pathname)
         #change encryption if its bad hash
 
         
@@ -83,22 +83,31 @@ class EventHandler(pyinotify.ProcessEvent):
         #Finding last encryption
         with open("./logs/encryption_log.log") as file:
             #Checking for Empty log file
-            if not file.read(1): 
-                print("Encryption Log file is empty")
-                random_encrypt_decrypt_file(event.pathname)
+            change_needed = True
+            #Checking last time file was encrypted
+    
+            for line in reversed(file.readlines()):
+                if event.pathname in line: 
+                    print(line)
 
-            for line in (file.readlines() [-1:]):
-                print("line") 
-                latest_encryption_log_timestamp = " ".join(line.split(" ")[0:2])
+                    latest_encryption_log_timestamp = " ".join(line.split(" ")[0:2])
 
-                print(f"Last time file was encrypted : {latest_encryption_log_timestamp} Latest Modification time {latest_encryption_log_timestamp}")
-                
-                if(latest_encryption_log_timestamp == latest_encryption_log_timestamp): 
-                    print("File was just encrypted")
-                else: 
-                    print("Encryption being carried out")
+                    print(f"Last time file was encrypted : {latest_encryption_log_timestamp} Latest Modification time {latest_logged_modification}")
+                    
+                    if(latest_encryption_log_timestamp == latest_logged_modification): 
+                        print("File was just encrypted")
+                        change_needed = False
+                    else: 
+                        print("Encryption should be carried out")
+                        
+                    break
 
-                    random_encrypt_decrypt_file(event.pathname)
+
+
+            if change_needed: 
+                print("here")
+                MTD_Utils.Random_Encryption(event.pathname)
+                print("MTD Encryption is done")
 
 
         #scan_with_yara(event.pathname)
