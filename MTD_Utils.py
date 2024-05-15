@@ -3,43 +3,12 @@ import logging
 import random
 from File import File  # Importing the File class from File.py
 from Hashing import *
+from MTD_Logs import *
 # Setup Logger
-def encryption_setup_logger():
-    encryption_logger = logging.getLogger("Encrytion_Logger")
-    encryption_logger.setLevel(logging.INFO)
 
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
     
-    file_handler = logging.FileHandler("logs/encryption_log.log", mode="a")
-    stream_handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    
-    file_handler.setFormatter(formatter)
-    stream_handler.setFormatter(formatter)
-    
-    encryption_logger.addHandler(file_handler)
-    encryption_logger.addHandler(stream_handler)
-    return encryption_logger
-def hash_setup_logger():
-    hash_logger = logging.getLogger("Hash_Logger")
-    hash_logger.setLevel(logging.INFO)
-
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
-    
-    file_handler = logging.FileHandler("logs/hash_log.log", mode="a")
-    stream_handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    
-    file_handler.setFormatter(formatter)
-    stream_handler.setFormatter(formatter)
-    
-    hash_logger.addHandler(file_handler)
-    hash_logger.addHandler(stream_handler)
-    return hash_logger
-encryption_logger = encryption_setup_logger()
-hash_logger = hash_setup_logger()
+encryption_logger = MTD_Logs.Encryption_System_Logs()
+hash_logger = MTD_Logs.Hash_System_Logs()
 
 class MTD_Utils:
     encryption_methods = [
