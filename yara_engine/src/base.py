@@ -1,6 +1,8 @@
 import os
 import json
 from .models.rules import *
+from .models.scans import ScanData,Event
+from typing import List,Tuple
 
 class Executable(BaseRule):
     def __init__(self, rule:YaraRule):
@@ -69,7 +71,7 @@ class Base:
         cls.ruleset = [Executable(rule),SuspiciousUrl(rule),NetworkAccess(rule)]
         
     @classmethod
-    def scan(cls, filePath:str, fileHash:str):
+    def scan(cls, filePath:str, fileHash:str) -> Tuple[ScanData,List[str]]:
         """Returns only rules that are triggered for a file, and string for logging.
 
         Args:
@@ -77,42 +79,21 @@ class Base:
             fileHash (str): Individual File Hash
 
         Returns:
-            dict:   {
-                        filePath:str
-                        fileHash:str
-                        triggered:bool
-                        events:list [
-                                        {
-                                            "rule":str
-                                            "warning":str
-                                            "severity":str
-                                            "whitelist":bool
-                                        },...
-                                    ]
-                         
+            scanData: scan data        
             str: f-string in a loggable format.
         """
-        res = {}
-        res["filePath"] = filePath
-        res["fileHash"] = fileHash
-        res["triggered"] = False
-        res["events"] = []
+        scan = ScanData(filePath,fileHash)
+        logStrList = []
+        
         for rule in cls.ruleset:
             if fileHash in cls.whitelist:  
                 flag,data,logstring = rule.scan(filePath,fileHash,whitelist=True)
             else:
                 flag,data,logstring = rule.scan(filePath,fileHash,whitelist=False)
             if flag: 
-                res["triggered"] = True
-                res["events"].append(
-                    {
-                        "rule":rule.name,
-                        "warning":rule.warning,
-                        "severity":data["severity"],
-                        "whitelist":data["whitelist"]
-                    }
-                )
-        return res,logstring
+                scan.addEvent(Event(rule.name,rule.warning,data["severity"],data["whitelist"]))
+            logStrList.append(logstring)
+        return scan,logStrList
             
                 
     @classmethod
