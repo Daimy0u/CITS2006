@@ -1,5 +1,6 @@
 from abc import abstractmethod
-from ..models.rules import *
+
+from models.rules import *
 import os
 import yara
 
@@ -9,7 +10,7 @@ files = os.listdir(current_directory)
 BASE = current_directory + '/base.yar'
 EXTERNAL_RULES = current_directory + '/index-ext.yar'
 WHITELIST = current_directory + '/whitelist.json'
-
+HiddenExecutable = " "
 
 class Executable(Rule):
     def __init__(self, rule:YaraRule):
@@ -45,14 +46,16 @@ class SuspiciousUrl(Rule):
                          desc="Detect Suspicious Non-Standard TLD URL Access",
                          outputWarning="Suspicious URL Detected!",
                          rule=rule)
-    def scan(self,yaraRule:YaraRule,filePath,fileHash)
+    def scan(self,yaraRule:YaraRule,filePath,fileHash):
+        return 
 
 
 #["HiddenExecutable":[True,"File is an executable but has mismatched extension!",/something/...],"SuspiciousUrl":[False,"",]]
 class RuleContainer:
     DEFAULT = [HiddenExecutable]
 
-    def initYaraRules(self)
+    def initYaraRules(self):
+        return 
     def __init__(self):
         rules = load.getYaraRules()
 

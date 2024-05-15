@@ -1,4 +1,7 @@
 from Cipher import *
+
+import sys
+from rules.YaraScan import *
 #Only checking cipher system not file 
 def XOR():
     print("\n\n")
@@ -51,7 +54,4 @@ def Swap():
     print("\n\n")
 
 public, private = Cipher.RSA.generate_keypair(10000, 100000)
-XOR()
-RSA()
-Base64()
-Swap()
+Executable.scan("./dummy.txt")
