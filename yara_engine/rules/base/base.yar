@@ -1,40 +1,40 @@
 rule isExecutable {
     strings:
-        $exe_signature = { 4D 5A }
-        $elf_magic = { 7f 45 4c 46 }
+        $s = { 7f 45 4c 46 }
     condition:
-        $exe_signature at 0 or
-        $elf_magic at 0
+        $s at 0
 }
 
-rule isHidden {
+rule isHiddenUnencrypted {
     strings:
-        $hidden_attribute = "H" wide ascii
+        $s= "E" wide ascii
     condition:
-        $hidden_attribute at 0
+        $s at 0
 }
 
 rule isScript {
     strings:
-        $script_signature = { 23 21 }
-        $shell_script = "#!/bin/sh"
-        $bash_function = "(){"
+        $signature = { 23 21 }
+        $s1 = "#!/bin/sh"
+        $s2 = "#!/bin/bash"
+        $s3 = "#!/bin/zsh"
+        $function = "(){"
         $reverse_shell = "bash -i >& /dev/tcp/"
-        $base64_data = /[A-Za-z0-9+\/]{50,}={0,2}/
+        $base64 = /[A-Za-z0-9+\/]{50,}={0,2}/
      condition:
-        $script_signature at 0 or
-        ($shell_script or $bash_function) and
-        ($reverse_shell or $base64_data)
+        $signature at 0 or
+        ((any of ($s*)) or $function) or
+        ($reverse_shell or $base64)
 }
 
 rule isMaliciousScript {
     strings:
-        $sa1 = "curl http" base64
-		$sa2 = "wget http" base64
-		$sb1 = "chmod 777 " base64
-		$sb2 = "/tmp/" base64
+        $a1 = "curl http" base64
+		$a2 = "wget http" base64
+		$b1 = "chmod 777 " base64
+		$b2 = "/tmp/" base64
     condition:
-        1 of ($sa*) and 1 of ($sb*)
+        1 of ($a*) and 1 of ($b*)
 }
 
 rule isUrl {
@@ -42,6 +42,29 @@ rule isUrl {
         $url = /https?:\/\/([\w\.-]+)([\/\w \.-]*)/ nocase
     condition:
         $url
+}
+
+rule isIp {
+    strings:
+        $ip = /([^:]+:[^@]+@)?(\d{1,3}\.){3}\d{1,3}(:\d{1,5})?/
+    condition:
+        $ip
+}
+
+rule isDDE {
+    strings:
+        $s1 = /(^|\n|,)=\s*cmd\|/ nocase
+    condition:
+        $s1
+}
+
+rule isMaliciousZip {
+    strings:
+        $b1 = { 50 4B 03 04 }
+        $b2 = ".zip"
+        $s1 = { 50 4B 01 02 [42] 2E 2E 2F}
+    condition:
+        ($b1 and $b2) or $s1
 }
 
 rule isAccessingNetwork {

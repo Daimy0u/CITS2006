@@ -22,7 +22,7 @@ class SuspiciousUrl(BaseRule):
         super().__init__(name="Suspicious URL", 
                         desc="Detect Suspicious Non-Standard TLD URL Access",
                         outputWarning="Suspicious URL Detected!",
-                        severity=2)
+                        severity=1)
         self.passing_tld = ['.com','.gov','.edu','.net','.org']
         
     def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
@@ -36,9 +36,8 @@ class SuspiciousUrl(BaseRule):
             if whitelist:
                 return self.infoPositive(filePath,fileHash,whitelist,severity=0)
             else:
-                if flag == False: severity = 1
-                else: severity = 2
-                return self.infoPositive(filePath,fileHash,whitelist,severity=severity)
+                if flag == False: return self.infoNegative()
+                return self.infoPositive(filePath,fileHash,whitelist)
         else: 
             return self.infoNegative()
 
@@ -90,12 +89,65 @@ class NetworkAccess(BaseRule):
         else: 
             return self.infoNegative()
     
+class MaliciousDDE(BaseRule):
+    def __init__(self):
+       super().__init__(name="Malicious DDE", 
+                        desc="Detects Dynamic Data Exchange (DDE) attacks in office files.",
+                        outputWarning="Document file is likely malicious (DDE)!",
+                        severity=5)
+       
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
+        if 'isDDE' in matches:
+            if whitelist:
+                return self.infoPositive(filePath,fileHash,whitelist,severity=0)
+            else:   
+                return self.infoPositive(filePath,fileHash,whitelist)
+        else: 
+            return self.infoNegative()
+
+class MaliciousZip(BaseRule):
+    def __init__(self):
+        super().__init__(name="Malicious ZIP",
+                        desc="Detects ZIP Bombs and Slips",
+                        outputWarning="Zip file is malicious (Bomb/Slip)!",
+                        severity=5)
+
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
+        if 'isMaliciousZip' in matches:
+            if whitelist:
+                #Why would you whitelist a zip bomb/slip?
+                return self.infoPositive(filePath,fileHash,whitelist,severity=5,extraInfo=" File is whitelisted, whitelist compromised?")
+            else:
+                return self.infoPositive(filePath,fileHash,whitelist)
+        else:
+            return self.infoNegative()
+        
+class ContainsIP(BaseRule):
+    def __init__(self):
+       super().__init__(name="IP Address Detection", 
+                        desc="Detects IP addresses for review",
+                        outputWarning="File contains access/storage of IP addresses: ",
+                        severity=1)
+       
+    def scan(self,filePath,fileHash,matches,whitelist=False)->tuple:
+        resStr = "["
+        if 'isIp' in matches:
+            if not matches["isIp"][filePath]: matches["isIp"][filePath] = []
+            for ip in matches["isIp"][filePath]:
+                resStr += str(ip) + ","
+            if whitelist:
+                return self.infoPositive(filePath,fileHash,whitelist,extraInfo=resStr+"]")
+            else:   
+                return self.infoPositive(filePath,fileHash,whitelist)
+        else: 
+            return self.infoNegative()
+
 
 
 class Base:
     """
-    Base-set rules, made/tailored to the company.
-    """    
+    Base-set rules
+    """
     @classmethod
     def __init__(cls,rule:YaraRule,whitelist=None):
         if whitelist is None: whitelist = []
@@ -106,9 +158,9 @@ class Base:
         cls.ruleset = []
         #Load Base Rules
         #Files
-        cls.ruleset += [Executable(),Script(),MaliciousScript()]
+        cls.ruleset += [Executable(),Script(),MaliciousScript(),MaliciousDDE(),MaliciousZip()]
         #Networks
-        cls.ruleset += [SuspiciousUrl(),NetworkAccess()] 
+        cls.ruleset += [SuspiciousUrl(),NetworkAccess(),ContainsIP()] 
         
     @classmethod
     def scan(cls, filePath:str, fileHash:str) -> Tuple[ScanData,List[str]]:

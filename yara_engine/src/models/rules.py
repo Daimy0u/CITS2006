@@ -34,7 +34,9 @@ class YaraRule:
         res = {}
         for r in self.rules:
             for m in r.match(filePath):
-                res[m.rule] = [x.instances for x in m.strings]
+                if m.rule not in res.keys():
+                    res[m.rule] = {}
+                res[m.rule][filePath] = [str(x.instances) for x in m.strings]
         return res
     
         
@@ -68,7 +70,7 @@ class BaseRule:
     def getInstances(self):
         return self.instances
     
-    def infoPositive(self,filePath:str,fileHash:str,whitelist=False,severity=None) -> tuple:
+    def infoPositive(self,filePath:str,fileHash:str,whitelist=False,severity=None,extraInfo="") -> tuple:
         """
         Returns:
             [
@@ -81,7 +83,7 @@ class BaseRule:
             severity = SEVERITY_TABLE[self.severity]
         else: 
             severity = SEVERITY_TABLE[severity]
-        return [True,self.infoDict(whitelist,severity),self.infoStr(filePath,fileHash,severity)]
+        return [True,self.infoDict(whitelist,severity),self.infoStr(filePath,fileHash,severity,extraInfo)]
     
     def infoNegative(self) -> tuple:
         return [False,None,None]
@@ -96,6 +98,6 @@ class BaseRule:
                 "whitelist":whitelist
                 }
     
-    def infoStr(self,fileName,fileHash,severity) -> str:
-        return f"{severity} | {self.name} | {self.warning} | {fileName} | {fileHash}"
+    def infoStr(self,fileName,fileHash,severity,extraInfo="") -> str:
+        return f"{severity} | {self.name} | {self.warning + extraInfo} | {fileName} | {fileHash}"
     

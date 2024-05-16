@@ -1,7 +1,9 @@
 from Cipher import *
 
 import sys
-from rules.YaraScan import *
+import os
+import hashlib
+from yara_engine.Engine import YaraEngine
 #Only checking cipher system not file 
 def XOR():
     print("\n\n")
@@ -54,4 +56,18 @@ def Swap():
     print("\n\n")
 
 public, private = Cipher.RSA.generate_keypair(10000, 100000)
-Executable.scan("./dummy.txt")
+
+def main(baseDir,testDir):
+    engine = YaraEngine(baseDir)
+    print("Engine initialized")
+    for fName in os.listdir(testDir):
+        fpath = testDir + "/" + fName
+        print(f"Scanning {fpath}")
+        with open(fpath, 'rb') as f:  
+            fhash = hashlib.sha256(f.read()).hexdigest()
+        sdata,lst = engine.scan(fpath,fhash)
+        for logStr in lst:
+            print(logStr)
+
+if __name__ == "__main__":
+    main(str(sys.argv[1]),str(sys.argv[2]))
