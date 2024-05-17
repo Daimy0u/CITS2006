@@ -1,9 +1,7 @@
 import os
 import json
 import time
-from .src.base import *
-from .src.models.scans import ScanSetData
-
+from .src import Base, YaraRule, ScanSetData
 current_directory = os.getcwd()
 files = os.listdir(current_directory)
 
