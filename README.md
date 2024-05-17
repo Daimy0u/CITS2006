@@ -1,38 +1,10 @@
 # CITS2006
 
-## Planned Structure of Dependencies
+UWA Defensive Cybersecurity (CITS2006) 
+Group Project
 
-- Yara -> Rules.yar + Hash
-- Cipher -> None
-- File(Hash and Cipher) -> Cipher + Hash
-- MTD -> Yara + File
+Included modules:
+Cipher, Hashing, MTD, YaraEngine
 
-## Flow
 
-main ->
 
-- Check Filesystem Integrity with Stored Hashes
-- Launch Periodic File Scan Async
-- Runs MTD
-- Output Security Recommendations
-
-login ->
-
-- Asks user for key in form of password (auth pass+salt compare with hash, use stored keypair separate from user pass)
-- Decrypts Files, keep track of "user logon"
-- Encrypts File on log out, or after a set period of time.
-- Keep track of hash changes within user's directory.
-
-Cipher ->
-1/5/2024 
-- Added XOR encryption
-
-5/5/2024 
-- RSA
-- Basee64 encryption
-
-7/5/2024
-- Added individual file encryption for File.py
-
-10/5/2024
-- Added Swap RSA
