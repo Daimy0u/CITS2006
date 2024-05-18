@@ -13,6 +13,9 @@ MONITOR_PATH = "rba/"
 YARA_RULES_PATH = "/path/to/yara/rules/malware_detection.yar"
 BACK_UP = "backups"
 ACCESS_GRANTED = False
+password = "password"
+
+
 if not os.path.exists(BACK_UP):
     os.makedirs(BACK_UP)
 
@@ -46,15 +49,18 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
         
         isHighSecurity = event.path.startswith(HIGH_SECURITY_MONITOR_PATH)
         print("Scanning with Yara Engine")
+        MTD_Utils.MTD_Hashing(event.pathname, isHighSecurity)
+
 
         MTD_Utils.Random_Encryption(event.pathname, True)
         if event.path.startswith(HIGH_SECURITY_MONITOR_PATH):
             shutil.copy(event.pathname, os.path.join(BACK_UP, os.path.basename(event.pathname)))
-        MTD_Utils.MTD_Hashing(event.pathname, isHighSecurity)
-
+        
     def process_IN_MODIFY(self, event):
         global HIGH_SECURITY_MONITOR_PATH
         global ACCESS_GRANTED
+        global password
+        
         print(f"Access to file granted : {ACCESS_GRANTED}")
         encryption_change_needed = True
         logger.info(f"File Modified: {event.pathname} by MTD ")
@@ -90,8 +96,8 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
                     shutil.copy(event.pathname, backup_file_path)
                     
                     print("Unauthorized access to make changes authenticate")
-                    password = input("Please provide password for high_security file : ")
-                    if password == "something secret":
+                    input_password = input("Please provide password for high_security file : ")
+                    if input_password == password:
                         
                         ACCESS_GRANTED = True
                         encryption_change_needed = False
@@ -100,11 +106,13 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
                     else: 
                         print("Incorrect password ")
                         HIGH_SECURITY_MONITOR_PATH = MTD_Utils.Rotate_Folder_Name(HIGH_SECURITY_MONITOR_PATH)
+                        password = MTD_Utils.Rotate_Password(password)
                     print("MTD Encryption is done")
 
     def process_IN_DELETE(self, event):
         logger.info(f"File Deleted: {event.pathname}")
         print(f"Deleting: {event.pathname}")
+
 
 # Monitor setup
 wm = pyinotify.WatchManager()
