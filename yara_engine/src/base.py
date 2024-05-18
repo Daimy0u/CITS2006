@@ -148,27 +148,27 @@ class Base:
     """
     Base-set rules
     """
-    @classmethod
-    def __init__(cls,rule:YaraRule,whitelist=None):
+    cache = {}
+    ruleset = []
+    rule = None
+    
+    def __init__(self,rule:YaraRule,whitelist=None):
         if whitelist is None: whitelist = []
-        cls.rule = rule
-        cls.whitelist = whitelist
-        cls.cache = {}
-        
-        cls.ruleset = []
+        self.rule = rule
+        self.whitelist = whitelist
         #Load Base Rules
         #Files
-        cls.ruleset += [Executable(),Script(),MaliciousScript(),MaliciousDDE(),MaliciousZip()]
+        self.ruleset += [Executable(),Script(),MaliciousScript(),MaliciousDDE(),MaliciousZip()]
         #Networks
-        cls.ruleset += [SuspiciousUrl(),NetworkAccess(),ContainsIP()] 
-        
-    @classmethod
-    def scan(cls, filePath:str, fileHash:str) -> Tuple[ScanData,List[str]]:
+        self.ruleset += [SuspiciousUrl(),NetworkAccess(),ContainsIP()] 
+
+    def scan(self, filePath:str, fileHash:str,mThread=False) -> Tuple[ScanData,List[str]]:
         """Returns only rules that are triggered for a file, and string for logging.
 
         Args:
             filePath (str): Individual File Path
             fileHash (str): Individual File Hash
+            mThread (bool): Use thread-safe methods
 
         Returns:
             scanData: scan data        
@@ -176,12 +176,14 @@ class Base:
         """
         scan = ScanData(filePath,fileHash)
         logStrList = []
-        if fileHash in cls.cache.keys() and cls.cache[fileHash]["path"] == filePath:
-            return cls.cache[fileHash]["scan"],cls.cache[fileHash]["logStrList"]
-        
-        matches = cls.rule.getMatches(filePath)
-        for rule in cls.ruleset:
-            if fileHash in cls.whitelist:  
+        if fileHash in self.cache.keys() and self.cache[fileHash]["path"] == filePath:
+            return self.cache[fileHash]["scan"],self.cache[fileHash]["logStrList"]
+        if mThread:
+            matches = self.rule.getMatchesMultithread(filePath)
+        else:
+            matches = self.rule.getMatches(filePath)
+        for rule in self.ruleset:
+            if fileHash in self.whitelist:  
                 flag,data,logstring = rule.scan(filePath,fileHash,matches,whitelist=True)
             else:
                 flag,data,logstring = rule.scan(filePath,fileHash,matches,whitelist=False)
@@ -190,7 +192,7 @@ class Base:
             if logstring is not None: logStrList.append(logstring)
             
         #Store Cache
-        cls.cache[fileHash] = {
+        self.cache[fileHash] = {
             "path":filePath,
             "scan":scan,
             "logStrList":logStrList

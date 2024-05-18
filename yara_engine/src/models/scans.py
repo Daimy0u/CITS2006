@@ -53,12 +53,12 @@ class ScanSetData:
         
         self.sum = SEVERITY_TABLE.copy()
         for s in self.scans:
-            for s_const in SEVERITY_TABLE.keys:
+            for s_const in SEVERITY_TABLE.keys():
                 self.sum[s_const] += s[s_const]
                 
     def addScan(self,scan:ScanData):
         self.scans.append(scan)
-        for s_const in SEVERITY_TABLE.keys:
+        for s_const in SEVERITY_TABLE.keys():
                 self.sum[s_const] += scan.sum[s_const]
     
     def getInfo(self) -> Tuple[str,float,List[ScanData]]:

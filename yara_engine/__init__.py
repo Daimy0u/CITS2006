@@ -1,1 +1,1 @@
-from .Engine import YaraEngine
+from .Engine import YaraEngine,YaraEngineClient

@@ -23,12 +23,18 @@ class YaraRule:
     getMatches(args) - returns dict of rule matches.
 
     """
-    def __init__(self, ruleFilePath):
-        self.rules = [yara.compile(ruleFilePath)]
+    def __init__(self, ruleFilePath,mThread=False):
+        self.mThread = mThread
+        if not mThread:
+            self.rules = [yara.compile(ruleFilePath)]
+        else: self.rules = []
         self.matchData = {}
+        self.rulePath = [ruleFilePath]
     
     def addRule(self, ruleFilePath):
-        self.rules.append(yara.compile(ruleFilePath))
+        if not self.mThread:
+            self.rules.append(yara.compile(ruleFilePath))
+        self.rulePath.append(ruleFilePath)
 
     def getMatches(self, filePath):
         res = {}
@@ -39,6 +45,23 @@ class YaraRule:
                 res[m.rule][filePath] = [str(x.instances) for x in m.strings]
         return res
     
+    def getMatchesMultithread(self, filePath):
+        """Thread-safe method of matching, compiles rules for each run.
+
+        Args:
+            filePath (_type_): _description_
+
+        Returns:
+            dict: key(str:rule), value(list[str:instance])
+        """
+        res = {}
+        for rP in self.rulePath:
+            r = yara.compile(rP)
+            for m in r.match(filePath):
+                if m.rule not in res.keys():
+                    res[m.rule] = {}
+                res[m.rule][filePath] = [str(x.instances) for x in m.strings]
+        return res    
         
 class BaseRule:
     """
