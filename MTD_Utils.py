@@ -25,7 +25,7 @@ class MTD_Utils:
         lines = encryption_logs.readlines()
         logs_for_file = [line for line in lines if path in line]
         encryption_logs.close()
-        print("calling ")
+        print("calling decrypt")
         if logs_for_file:
             last_log = logs_for_file[-1]
             print(last_log)
