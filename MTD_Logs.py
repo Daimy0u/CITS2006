@@ -1,5 +1,6 @@
 import logging 
 import os 
+import re 
 class MTD_Logs:
     @staticmethod
     def Encryption_System_Logs(): 
@@ -38,3 +39,15 @@ class MTD_Logs:
         hash_logger.addHandler(file_handler)
         hash_logger.addHandler(stream_handler)
         return hash_logger
+    @staticmethod
+    def Convert_Cipher_Master(input_log_file, output_log_file):
+    # Regular expression pattern to match log entries
+        pattern = re.compile(r'Changing Encryption Method to (\w+) method for file (.+).')
+
+        with open(input_log_file, 'r') as infile, open(output_log_file, 'w') as outfile:
+            for line in infile:
+                match = pattern.search(line)
+                if match:
+                    cipher_algorithm = match.group(1)
+                    file_name = match.group(2)
+                    outfile.write(f"cipher_encryption;{cipher_algorithm}\n")
