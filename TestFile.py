@@ -64,7 +64,7 @@ def main(base,testDir):
     
     for fName in os.listdir(testDir):
         fpath = testDir + "/" + fName
-        if os.path.isDir(fpath):
+        if os.path.isdir(fpath):
             main(engine,fpath)
             continue
         print(f"Scanning {fpath}")
