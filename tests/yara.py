@@ -1,4 +1,5 @@
 import os,sys
+import hashlib
 from src.lib.hash.hash_sha256 import sha256
 from src.lib.yara_engine.Engine import YaraEngine
 
@@ -14,7 +15,7 @@ def run(base,testDir):
             continue
         print(f"Scanning {fpath}")
         with open(fpath, 'rb') as f:  
-            fhash = sha256(f.read()).hexdigest()
+            fhash = hashlib.sha256(f.read()).hexdigest()
         sdata,lst = engine.scan(fpath,fhash)
         for logStr in lst:
             print(logStr)

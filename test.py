@@ -1,5 +1,5 @@
 import sys
-import tests
+from tests import yara
 
 
-tests.yara('./src/lib/yara_engine/rules/base/base.yar','./src/lib/yara_engine/test')
+yara.run('./src/lib/yara_engine/rules/base/base.yar','./src/lib/yara_engine/test')
