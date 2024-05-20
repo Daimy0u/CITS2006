@@ -1,10 +1,10 @@
 import hashlib
 import pyinotify
 from datetime import datetime
-from modules.lib.hash.Hashing import *
+from modules.hash.Hashing import *
 import logging
 from logging.handlers import RotatingFileHandler
-from modules.lib.cipher.File import *
+from modules.cipher.File import *
 from .MTD_Utils import *
 import shutil
 # Set up the path for monitoring and Yara rule file

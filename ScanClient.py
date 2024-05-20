@@ -1,6 +1,6 @@
 import hashlib,os,sys
 from asyncio import run
-from yara_engine import YaraEngineClient
+from modules.yara_engine import YaraEngineClient
 
 
 def main(rulePath,testDir):
