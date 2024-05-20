@@ -1,17 +1,15 @@
 import os,sys
 import hashlib
-from modules.lib.hash.hash_sha256 import sha256
-from modules.lib.yara_engine.Engine import YaraEngine
 
-def run(base,testDir):
-    if type(base) == YaraEngine:
+def run(base,testDir,engineClass):
+    if type(base) == engineClass:
         engine = base
-    else: engine = YaraEngine(base)
+    else: engine = engineClass(base)
     
     for fName in os.listdir(testDir):
         fpath = testDir + "/" + fName
         if os.path.isdir(fpath):
-            run(engine,fpath)
+            run(engine,fpath,engineClass)
             continue
         print(f"Scanning {fpath}")
         with open(fpath, 'rb') as f:  
