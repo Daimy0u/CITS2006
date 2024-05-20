@@ -1,8 +1,8 @@
-from src.lib.cipher.Cipher import *
-from src.lib.hash.hash_sha256 import sha256
+from modules.lib.cipher.Cipher import *
+from modules.lib.hash.hash_sha256 import sha256
 import sys
 import os
-from src.lib.yara_engine.Engine import YaraEngine
+from modules.lib.yara_engine.Engine import YaraEngine
 #Only checking cipher system not file 
 def XOR():
     print("\n\n")

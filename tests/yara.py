@@ -1,7 +1,7 @@
 import os,sys
 import hashlib
-from src.lib.hash.hash_sha256 import sha256
-from src.lib.yara_engine.Engine import YaraEngine
+from modules.lib.hash.hash_sha256 import sha256
+from modules.lib.yara_engine.Engine import YaraEngine
 
 def run(base,testDir):
     if type(base) == YaraEngine:
