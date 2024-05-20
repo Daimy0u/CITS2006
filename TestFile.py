@@ -57,11 +57,16 @@ def Swap():
 
 public, private = Cipher.RSA.generate_keypair(10000, 100000)
 
-def main(baseDir,testDir):
-    engine = YaraEngine(baseDir)
-    print("Engine initialized")
+def main(base,testDir):
+    if type(base) == YaraEngine:
+        engine = base
+    else: engine = YaraEngine(base)
+    
     for fName in os.listdir(testDir):
         fpath = testDir + "/" + fName
+        if os.path.isDir(fpath):
+            main(engine,fpath)
+            continue
         print(f"Scanning {fpath}")
         with open(fpath, 'rb') as f:  
             fhash = hashlib.sha256(f.read()).hexdigest()
