@@ -3,7 +3,9 @@ import logging
 import random
 from File import File  # Importing the File class from File.py
 from Hashing import *
-from MTD_Logs import * 
+from MTD_Logs import *
+from mtdrandom import FileEncryptorMTD
+
 from check_duplicate_hashes import check_duplicate_hashes
 #from yara_engine.Engine import *
 # Setup Logger
@@ -108,7 +110,8 @@ class MTD_Utils:
                 file_path = os.path.join(dirpath, filename)
                 try:
                     print(f"Filename: {filename} Dirpath: {dirpath} dirnames: {dirnames}")
-                    cls.Random_Encryption(file_path, False)
+                    #cls.Random_Encryption(file_path, False)
+                    FileEncryptorMTD().encrypt_file(file_path)
                 except Exception as e:
                     print(f"Error hashing file {file_path}: {e}")
         #changing the names of directories 
