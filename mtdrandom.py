@@ -70,7 +70,7 @@ class FileEncryptorMTD:
             print("Decrypted file content:")
             subprocess.run(["cat", file_path])
 
-
+"""
 def main():
     file_path = "test3.txt"
 
@@ -87,3 +87,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
