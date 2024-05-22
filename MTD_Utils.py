@@ -26,13 +26,13 @@ class MTD_Utils:
         lines = encryption_logs.readlines()
         logs_for_file = [line for line in lines if path in line]
         encryption_logs.close()
-        print("calling decrypt")
+        
         if logs_for_file:
             last_log = logs_for_file[-1]
             print(last_log)
             for encrypt_method, decrypt_method, method_name in cls.encryption_methods:
                 if method_name in last_log:
-                    print(f"Previous feEncryption Method was {method_name}")
+                    print(f"Previous Encryption Method was {method_name}")
                     print("Decrypting the file...")
                     decrypt_method(path)
                     encryption_logger.info(f"Decrypting File Method using {method_name} Decrypt method for file {path}.")
@@ -47,9 +47,9 @@ class MTD_Utils:
         
         encrypt_method, decrypt_method, method_name = random.choice(cls.encryption_methods)
         encryption_logger.info(f"Changing Encryption Method to {method_name} method for file {path}.")
-        print(f"Selected {method_name} method for encryption.")
+
         encrypt_method(path)
-        print(f"File encrypted using {method_name}.")
+ 
     @classmethod
     def MTD_Hashing(cls, path, high_security): 
         with open(path, 'rb') as afile:
@@ -58,11 +58,7 @@ class MTD_Utils:
                 hash1 = SHA256.hash(buf)
                 hash_logger.info(f"{hash1} {path} SHA256")
             hash2 = FNV1a.hash(buf)
-            hash_logger.info(f"{hash2} {path} FNV1a")
-    @classmethod
-    def MTD_Yara_Scan(cls, path, high_security): 
-        print("heres")
-        #YaraEngine.scan("/test.txt", "4fb17c0658b0949ade6c61deb8a8a8f8cf2c58c08ae7a633e0")
+  
     @classmethod
     def Rotate_Folder_Name(cls, original_name):
         #build new name 

@@ -40,6 +40,10 @@ class TimestampExtractorHandler(logging.Handler):
         
 
 logger.addHandler(TimestampExtractorHandler())
+root_logger = logging.getLogger()
+for handler in root_logger.handlers[:]:
+    if isinstance(handler, logging.StreamHandler):
+        root_logger.removeHandler(handler)
 
 # Define event handlers
 class SecurityEventHandler(pyinotify.ProcessEvent):
@@ -61,10 +65,8 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
         global ACCESS_GRANTED
         global password
         
-        print(f"Access to file granted : {ACCESS_GRANTED}")
         encryption_change_needed = True
         logger.info(f"File Modified: {event.pathname} by MTD ")
-        print(f"Modifying")
         if(HIGH_SECURITY_MONITOR_PATH in event.pathname):
 
             with open("./logs/encryption_log.log") as file:
@@ -76,13 +78,12 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
                         if "Decrypt" in line: 
                             decrypted = True
                         latest_encryption_log_timestamp = " ".join(line.split(" ")[0:2])
-                        print(f"Last time file was encrypted : {latest_encryption_log_timestamp} Latest Modification time {latest_logged_modification}")
+                        
                         if latest_encryption_log_timestamp == latest_logged_modification: 
-                            print("File was just encrypted")
+                          
                             encryption_change_needed = False
                             break
-                        else: 
-                            print("Encryption should be carried out")
+                       
 
                 if encryption_change_needed: 
                     backup_file_path = os.path.join(BACK_UP, os.path.basename(event.pathname))
@@ -102,7 +103,6 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
                         ACCESS_GRANTED = True
                         encryption_change_needed = False
                         MTD_Utils.MTD_Decrypt(event.pathname)
-                        logger.info(f"Access Granted for {event.pathname} Mode Edit")
                     else: 
                         print("Incorrect password ")
                         HIGH_SECURITY_MONITOR_PATH = MTD_Utils.Rotate_Folder_Name(HIGH_SECURITY_MONITOR_PATH)
@@ -126,3 +126,4 @@ notifier.loop()
 if __name__ == '__main__':
     print("Monitoring started...")
     notifier.loop()
+

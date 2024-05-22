@@ -15,6 +15,7 @@ def main(directory):
         while True:
             # Encrypt files in the directory
             print("Hey its been a while ")
+            #Todo: Yara Scan 
             
             # Sleep for 10 seconds
             print("Sleeping for 10 seconds...")

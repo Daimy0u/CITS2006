@@ -1,0 +1,16 @@
+cipher_encryption;Swap
+cipher_encryption;RSA
+cipher_encryption;Base64
+cipher_encryption;Base64
+cipher_encryption;RSA
+cipher_encryption;XOR
+cipher_encryption;XOR
+cipher_encryption;Swap
+cipher_encryption;XOR
+cipher_encryption;RSA
+cipher_encryption;Swap
+cipher_encryption;Base64
+cipher_encryption;RSA
+cipher_encryption;Base64
+cipher_encryption;RSA
+cipher_encryption;XOR
