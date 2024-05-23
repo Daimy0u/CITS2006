@@ -13,8 +13,12 @@ BASE = current_directory + '/rules' + '/base/base.yar'
 
         
 class YaraEngine:
-    def __init__(self,fileDir=BASE):
-        self.base = Base(fileDir)
+    def __init__(self,fileDir=None):
+        if fileDir == None:
+            baseRule = YaraRule(BASE)
+        else:
+            baseRule = YaraRule(fileDir)
+        self.base = Base(baseRule)
         self.queue = []
         self.scans = ScanSetData(time.time())
         
