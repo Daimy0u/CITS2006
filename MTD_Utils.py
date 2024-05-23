@@ -5,12 +5,16 @@ from File import File  # Importing the File class from File.py
 from Hashing import *
 from MTD_Logs import * 
 from check_duplicate_hashes import check_duplicate_hashes
+from tests import yara
+from modules.yara_engine.Engine import YaraEngine
+
 #from yara_engine.Engine import *
 # Setup Logger
-
+YARA_RULES_PATH = './modules/yara_engine/rules/base/base.yar'
     
 encryption_logger = MTD_Logs.Encryption_System_Logs()
 hash_logger = MTD_Logs.Hash_System_Logs()
+yara_logger = MTD_Logs.Yara_Scan_Logs()
 root_file = "/home/aarya/Documents/Uni/cyber/project/CITS2006/rba"
 class MTD_Utils:
     encryption_methods = [
@@ -112,6 +116,13 @@ class MTD_Utils:
            MTD_Utils.Rotate_Folder_Name(dirpath)
 
     @classmethod
+    def MTD_Yara(cls, path): 
+        results = yara.run(YARA_RULES_PATH, path,YaraEngine)
+        print(results)
+
+
+    @classmethod
+
     def MTD_Scan(cls, path): 
         # yara scan 
         # scan hash duplicates 

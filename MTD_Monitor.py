@@ -6,11 +6,14 @@ from logging.handlers import RotatingFileHandler
 import shutil
 from File import *  # Adjust these imports based on your actual module structure
 from MTD_Utils import *  # Same as above
+import sys
+from tests import yara
+from modules.yara_engine.Engine import YaraEngine
 
 # Setup paths for monitoring and backup
 HIGH_SECURITY_MONITOR_PATH = "rba/high_security"
 MONITOR_PATH = "rba/"
-YARA_RULES_PATH = "/path/to/yara/rules/malware_detection.yar"
+
 BACK_UP = "backups"
 ACCESS_GRANTED = False
 password = "password"
@@ -53,6 +56,7 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
         
         isHighSecurity = event.path.startswith(HIGH_SECURITY_MONITOR_PATH)
         print("Scanning with Yara Engine")
+        MTD_Utils.MTD_Yara(event.pathname)
         MTD_Utils.MTD_Hashing(event.pathname, isHighSecurity)
 
 

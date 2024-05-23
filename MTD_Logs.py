@@ -38,6 +38,16 @@ class MTD_Logs:
         hash_logger.addHandler(file_handler)
 
         return hash_logger
+    def Yara_Scan_Logs(scan_log_file, yara_log_file):
+            with open(scan_log_file, 'r') as infile, open(yara_log_file, 'w') as outfile:
+                for line in infile:
+                    if line.startswith("Scanning"):
+                        continue
+                    severity, category, description, file_path, file_hash = map(str.strip, line.split('|'))
+                    outfile.write(f"YARA_SCAN;{severity};{category};{description};{file_path};{file_hash}\n")
+    
+
+
     @staticmethod
     def Convert_Cipher_Master(input_log_file, output_log_file):
     # Regular expression pattern to match log entries
