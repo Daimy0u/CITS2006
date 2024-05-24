@@ -13,7 +13,7 @@ def scan(base,testDir,engineClass,logFile):
     for fName in os.listdir(testDir):
         fpath = testDir + "/" + fName
         
-        if os.path.isdir(fpath):
+        if os.path.isdir(fpath):    
             scan(engine,fpath,engineClass)
             continue
         print(f"Scanning {fpath}")
