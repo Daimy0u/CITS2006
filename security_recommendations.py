@@ -9,6 +9,7 @@ def generate_recommendations(log_file, recommendation_file):
     # Read the log file
     with open(log_file, "r") as f:
         lines = f.readlines()
+    recommendation = ""
 
     # Process each line in the log file
     for line in lines:

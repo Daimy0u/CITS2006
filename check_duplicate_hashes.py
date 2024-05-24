@@ -18,7 +18,7 @@ def check_duplicate_hashes(log_file):
     # Parse each line and check for duplicates
     for line in lines:
         parts = line.strip().split(" ")[4:]
-        print(parts)
+        
         dash, hash_value, filename, hash_algorithm = parts
         if hash_value in hash_dict:
             hash_dict[hash_value].append(filename)
@@ -30,10 +30,8 @@ def check_duplicate_hashes(log_file):
         if len(filenames) > 1:
             duplicates.append(tuple(filenames))
     if(duplicates):
-        print("Duplicate hash values found:")
-
+  
         for filenames in duplicates:
-                print("Files with the same hash:", filenames)
 
                 #logs the duplicate hash value to master_log.txt
                 with open("master_log.txt", "a") as f:

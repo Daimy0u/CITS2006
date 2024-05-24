@@ -7,17 +7,15 @@ import shutil
 from File import *  # Adjust these imports based on your actual module structure
 from MTD_Utils import *  # Same as above
 import sys
-from tests import yara
-from modules.yara_engine.Engine import YaraEngine
 
 # Setup paths for monitoring and backup
 HIGH_SECURITY_MONITOR_PATH = "rba/high_security"
-MONITOR_PATH = "rba/"
+MONITOR_PATH = "rba"
 
 BACK_UP = "backups"
 ACCESS_GRANTED = False
 password = "password"
-
+encryption_change_needed = True
 
 if not os.path.exists(BACK_UP):
     os.makedirs(BACK_UP)
@@ -48,6 +46,7 @@ for handler in root_logger.handlers[:]:
     if isinstance(handler, logging.StreamHandler):
         root_logger.removeHandler(handler)
 
+
 # Define event handlers
 class SecurityEventHandler(pyinotify.ProcessEvent):
     def process_IN_CREATE(self, event): 
@@ -56,7 +55,7 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
         
         isHighSecurity = event.path.startswith(HIGH_SECURITY_MONITOR_PATH)
         print("Scanning with Yara Engine")
-        MTD_Utils.MTD_Yara(event.pathname)
+        #MTD_Utils.MTD_Yara(event.pathname)
         MTD_Utils.MTD_Hashing(event.pathname, isHighSecurity)
 
 
@@ -65,20 +64,23 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
             shutil.copy(event.pathname, os.path.join(BACK_UP, os.path.basename(event.pathname)))
         
     def process_IN_MODIFY(self, event):
+
         global HIGH_SECURITY_MONITOR_PATH
         global ACCESS_GRANTED
         global password
-        
-        encryption_change_needed = True
+    
+        global encryption_change_needed
         logger.info(f"File Modified: {event.pathname} by MTD ")
+        
         if(HIGH_SECURITY_MONITOR_PATH in event.pathname):
+            if(event.path != HIGH_SECURITY_MONITOR_PATH):
+                HIGH_SECURITY_MONITOR_PATH = event.path
 
             with open("./logs/encryption_log.log") as file:
                 
                 decrypted = False
                 for line in reversed(file.readlines()):
                     if event.pathname in line: 
-                        print(line)
                         if "Decrypt" in line: 
                             decrypted = True
                         latest_encryption_log_timestamp = " ".join(line.split(" ")[0:2])
@@ -94,13 +96,13 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
                     if os.path.exists(backup_file_path):
                         if (not ACCESS_GRANTED):
                             shutil.copy(backup_file_path, event.pathname)
-                            logger.info(f"Reverted changes for {event.pathname}")
+                            logger.info(f"Reverted changes for {event.pathname}\n\n")
                             
                     MTD_Utils.Random_Encryption(event.pathname, ACCESS_GRANTED)
                     logger.info(f"Backing up changes for {event.pathname}")
                     shutil.copy(event.pathname, backup_file_path)
                     
-                    print("Unauthorized access to make changes authenticate")
+                    print("//////////////////////////////////////////////////////////////////////Unauthorized access to make changes authenticate ///////////////////////////////////////////////")
                     input_password = input("Please provide password for high_security file : ")
                     if input_password == password:
                         
@@ -111,6 +113,7 @@ class SecurityEventHandler(pyinotify.ProcessEvent):
                         print("Incorrect password ")
                         HIGH_SECURITY_MONITOR_PATH = MTD_Utils.Rotate_Folder_Name(HIGH_SECURITY_MONITOR_PATH)
                         password = MTD_Utils.Rotate_Password(password)
+                        encryption_change_needed = True
                     print("MTD Encryption is done")
 
     def process_IN_DELETE(self, event):

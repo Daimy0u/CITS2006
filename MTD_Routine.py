@@ -5,7 +5,7 @@ from MTD_Utils import *
 from security_recommendations import generate_recommendations
 import re
 
-
+SECURITY_RECOMMENDATION = "Security_Recs.txt"
 
 def main(directory):
     """
@@ -21,9 +21,19 @@ def main(directory):
             print("Sleeping for 10 seconds...")
             time.sleep(10)
             MTD_Utils.MTD_Scan(directory)
-            MTD_Logs.Convert_Cipher_Master("./logs/encryption_log.log", "./logs/encryption_log.log")
-            generate_recommendations("master_log.txt", "sec_rec.txt")
-            
+            MTD_Logs.Convert_Cipher_Master("./logs/encryption_log.log", "./master_log.txt")
+
+            time.sleep(20)
+            MTD_Utils.MTD_Shuffle()
+            MTD_Logs.Convert_Cipher_Master("./logs/encryption_log.log", "./master_log.txt")
+            if not os.path.exists(SECURITY_RECOMMENDATION):
+        # Create the file and write initial content to it
+                with open(SECURITY_RECOMMENDATION, 'w') as file:
+                    file.write("")
+                
+            else:
+                os.remove(SECURITY_RECOMMENDATION)
+            generate_recommendations("./master_log.txt", SECURITY_RECOMMENDATION)
 
             
     except KeyboardInterrupt:
